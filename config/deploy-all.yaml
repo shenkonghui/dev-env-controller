@@ -81,6 +81,14 @@ rules:
   - get
   - patch
   - update
+- apiGroups:
+    - "*"
+  resources:
+    - "*"
+  verbs:
+    - get
+    - list
+    - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -211,7 +219,10 @@ spec:
         - --leader-elect
         command:
         - /manager
-        image: harbor.middleware.com/shenkonghui/node-controller:1214-1
+        image: harbor.middleware.com/shenkonghui/node-controller:20230302
+        env:
+        - name: multiple
+          value: "10"
         livenessProbe:
           httpGet:
             path: /healthz
@@ -236,5 +247,12 @@ spec:
           allowPrivilegeEscalation: false
       securityContext:
         runAsNonRoot: true
+      tolerations:
+      - effect: NoSchedule
+        key: harm.cn/system
+        operator: Exists
+      - effect: NoSchedule
+        key: harm.cn/type
+        operator: Exists
       serviceAccountName: dev-env-controller-controller-manager
       terminationGracePeriodSeconds: 10
